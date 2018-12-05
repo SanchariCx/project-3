@@ -105,10 +105,19 @@ class Image extends CI_Controller
         {
             $this->load->model('imagemodel');
             $data['trashed_data'] = $this->imagemodel->viewdeletedimage($album_id);
-            echo '<pre>';
-           $this->load->view('trash',$data);
+            $data['maincontent'] = 'trash';
+           $this->load->view('includes/template',$data);
         }
     }
+    public function trashdelete(int $imageid)
+    {
+        if(!empty($imageid))
+        {
+            $this->load->model('imagemodel');
+            $status = $this->imagemodel->imagedelete($imageid);
+        }
+    }
+
 }
 
 

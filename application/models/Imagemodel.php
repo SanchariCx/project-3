@@ -42,6 +42,10 @@ class Imagemodel extends CI_Model
                    $result = $q->result_array();
     return $result;                          
     }
+    public function imagedelete(int $image_id)
+    {
+        
+    }
 
 }
 ?>
