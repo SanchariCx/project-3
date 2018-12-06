@@ -44,7 +44,21 @@ class Imagemodel extends CI_Model
     }
     public function imagedelete(int $image_id)
     {
-        
+        $status = $this->db->where([
+                'id'=>$image_id,
+        ])
+                ->delete('images');
+
+    return $status;         
+    }
+    public function fetchid(int $image_id)
+    {
+        $q = $this->db->where([
+            'id'=>$image_id,
+        ])
+            ->get('images');
+        $result = $q->result_array();    
+    return $result;
     }
 
 }

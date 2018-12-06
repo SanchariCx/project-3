@@ -27,12 +27,16 @@ class Image extends CI_Controller
         $files_ext =  explode("/",$_FILES['album-image']['type']);
         $extension = $files_ext[1];
         $image_name =  str_replace('.',"",microtime(TRUE));
-        // $image_name.=".";
-        // $image_name.=$extension;
+        $image_name.=".";
+        $image_name.=$extension;
         $config['file_name'] = $image_name;
         $this->load->library('upload',$config);
-        if($this->upload->do_upload('album-image'))
-        {   
+        if(!$this->upload->do_upload('album-image'))
+        {
+             $error = $this->upload->display_errors();
+             $this->session->set_flashdata('error',$error);
+             redirect('image/getimages/'.$album_id);
+        }   
            $ext = $this->upload->data('file_ext');  
            $size = $this->upload->data('file_size');  
            $mime = $this->upload->data('file_type');
@@ -67,7 +71,8 @@ class Image extends CI_Controller
            }
            
 
-        }
+        
+
     }
         
     public function thumbnailCreation(string $image_path)
@@ -75,11 +80,11 @@ class Image extends CI_Controller
         $config['image_library'] = 'gd2';
         $config['source_image'] = $image_path;
         $config['new_image'] = $target_path;
-        $config['create_thumb'] = TRUE;
+        //$config['create_thumb'] = TRUE;
         $config['maintain_ratio'] = TRUE;
         $config['width'] = 200;
         $config['height'] = 150;
-        // $cong['thumb_marker'] = FALSE;
+        $cong['thumb_marker'] = '';
         $this->load->library('image_lib',$config);
         $status = $this->image_lib->resize();
 
@@ -88,14 +93,16 @@ class Image extends CI_Controller
     public function softdelete(int $id)
     {
        if(!empty($id))
-       {   $time = date('Y:m:d H:i:s');
-           $this->load->model('imagemodel');
-          $status =  $this->imagemodel->softdelete($id,[
+       {   $this->load->model('imagemodel');
+           $album_id = $this->imagemodel->fetchid($id);
+           $time = date('Y:m:d H:i:s');
+          $status =  $this->imagemodel->softdelete($id,
+                                            [
                                             'deleted_at'=>$time,
                                             ]);
           if($status)
           {
-              redirect('/album');
+              redirect('album/');
           }                                  
        }
     }
@@ -112,9 +119,24 @@ class Image extends CI_Controller
     public function trashdelete(int $imageid)
     {
         if(!empty($imageid))
-        {
+        { 
             $this->load->model('imagemodel');
+            $album_id = $this->imagemodel->fetchid($imageid);
+            $albumid = $album_id[0]['album_id'];
+            $image_name = $this->input->post('imagename');
+            $extension = $this->input->post('extension');
+            $image_folder ='images/'.$image_name.'.'.$extension;
+            $thumbnail_folder = 'images/thumbnail/'.$image_name.'_thumb.'.$extension;
             $status = $this->imagemodel->imagedelete($imageid);
+            if($status)
+            {   
+                $image_status = unlink(FCPATH.$image_folder);
+                $thumbnail_status = unlink(FCPATH.$thumbnail_folder);
+                if($image_status ==TRUE && $thumbnail_status ==TRUE)
+                {
+                    redirect('/image/trash/'.$albumid);
+                }
+            }
         }
     }
 

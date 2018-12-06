@@ -25,6 +25,16 @@ padding-right: 10px;
     margin-bottom: 0px;
 }
 
+#images-wrapper img {    
+   width: 100% ;    
+   height: auto !important;  
+}  
+#images-wrapper{    
+   display:inline-block;    
+   margin-right: auto;    
+   margin-left: auto;  
+}
+
 </style>
 <?php
 if(isset($album)&&!empty($album))
@@ -56,7 +66,22 @@ if(isset($album)&&!empty($album))
           </p>
         </div>
       </section>
+     
+      <?php
+      $error =  $this->session->flashdata('error');
+      if(!empty($error))
+      {?>
+        <script>
+            $(document).ready(function()
+            {
+            $('#ImageUpload').modal('show');
+            });
+            
+        </script>
+      <?php
+      }
 
+      ?>
 <div class="col-md-6 col-md-offset-3">
         <div class="col-xs-12 col-sm-10">
                     <div class="row">
@@ -65,25 +90,22 @@ if(isset($album)&&!empty($album))
                         {
                             foreach($images as $image)
                             {   
-                               
-
-                                
-                        ?>
-                                <div class="col-xs-18 col-sm-6 col-md-4">
-                                        <div class="thumbnail">
-                                            <form action="<?php echo base_url('index.php/image/softdelete/'.$image['id'])?>" method="post">
-                                            <a href="" data-fancybox data-caption="&lt;b&gt;Single photo&lt;/b&gt;&lt;br /&gt;Caption can contain &lt;em&gt;any&lt;/em&gt; HTML elements">
-                                                <img src="<?php echo base_url('images/thumbnail/'.$image['image_name'].'_thumb.'.$image['ext'])?>"class="img-responsive" alt="card-img-top"style="width:100%;">
-                                            </a>
-                                                    <div class="caption">   
-                                                        <h4><?=$image['caption']?></h4>
-                                                        <p>Caption...</p>
-                                                        <input type="hidden" name="hidden-field" value="">
-                                                        <button type="submit" class="btn btn-info" name="delete-image">Delete</button>        
-                                                    </div>
-                                            </form>
+                        ?>       <div id="images-wrapper">
+                                            <div class="thumbnail">
+                                                <form action="<?php echo base_url('index.php/image/softdelete/'.$image['id'])?>" method="post">
+                                                <a href="" data-fancybox data-caption="&lt;b&gt;Single photo&lt;/b&gt;&lt;br /&gt;Caption can contain &lt;em&gt;any&lt;/em&gt; HTML elements">
+                                                    <img src="<?php echo base_url('images/thumbnail/'.$image['image_name'])?>"class="img-responsive" alt="card-img-top"style="width:100%;">
+                                                </a>
+                                                        <div class="caption">   
+                                                            <h4><?=$image['caption']?></h4>
+                                                            <p>Caption...</p>
+                                                            <input type="hidden" name="hidden-field" value="">
+                                                            <button type="submit" class="btn btn-info" name="delete-image">Delete</button>        
+                                                        </div>
+                                                </form>
+                                      
                                     </div>
-                                </div>
+                                </div>    
                     <?php
                                 
                             }
@@ -100,6 +122,9 @@ if(isset($album)&&!empty($album))
                 <h4 class="modal-title">Modal title</h4>
             </div>
             <div class="modal-body">
+                <?php
+               echo $this->session->flashdata('error'); 
+                ?>
             <form  class="form-inline" action="<?php echo base_url('index.php/image/do_upload/'.$value['id']) ?>" enctype="multipart/form-data" method="post">
                 <div class="form-group">
                     <label class="btn btn-default btn-file">
