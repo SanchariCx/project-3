@@ -242,6 +242,26 @@ function ImageList()
                     html+= '<div id="images-wrapper">';
                     html+= ' <div class="thumbnail">';
                     html+= '  <form action="'+base_url+'index.php/image/softdelete/'+image_id+'" method="post">';
+                    html+= '  <a href="" data-fancybox data-caption="&lt;b&gt;Single photo&lt;/b&gt;&lt;br /&gt;Caption can contain &lt;em&gt;any&lt;/em&gt; HTML elements">';
+                    html+= '    <img src="<?php echo base_url('images/thumbnail/'.$image['image_name'])?>"class="img-responsive" alt="card-img-top"style="width:100%;">';
+                    html+= '     </a>';
+                    html+= '     <div class="caption">';
+                    html+= '      <h4><?=$image['caption']?></h4>';
+                    html+= '      <p>Caption...</p>';
+                    html+= '       <button type="submit" class="btn btn-info" name="delete-image">Delete</button>';
+                    html+= '       </div>\
+                                    </form>\
+                                      </div>\
+                                      </div>';
+                    html+= '<';
+                    html+= '?';
+                    html+= 'php';
+                    html+='?';
+                    html+='>';
+
+                                    
+
+
                     
                 }
                
