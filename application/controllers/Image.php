@@ -8,7 +8,6 @@ class Image extends CI_Controller
     public function index()
     {
        
-
     }
     public function getimages($id)
     {  
@@ -19,9 +18,16 @@ class Image extends CI_Controller
         $data['maincontent'] = 'gallery';
         $this->load->view('includes/template',$data);
     }
-    public function do_upload(int $album_id)
-    {   
-        
+    public function fetchimages()
+    {   $id = $this->input->post('albumid');
+        $this->load->model('imagemodel');
+        $data['images'] = $this->imagemodel->fetchimage($id);
+        echo json_encode($data);
+
+       
+    }
+    public function do_upload()
+    {   $album_id = $this->input->post('album_id');
         $config['upload_path'] = './images/';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
         $files_ext =  explode("/",$_FILES['album-image']['type']);
@@ -63,10 +69,7 @@ class Image extends CI_Controller
            {
 
             $thumb_status = $this->thumbnailCreation($this->upload->data('full_path'));
-            if($thumb_status)
-            {
-                redirect('image/getimages/'.$album_id);
-            }
+            echo $thumb_status;
                   
            }
            

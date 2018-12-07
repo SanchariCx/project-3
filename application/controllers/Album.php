@@ -3,7 +3,7 @@ class Album extends CI_Controller
 {   public function __construct()
     { 
         parent::__construct();
-        $this->output->enable_profiler(TRUE);
+        // $this->output->enable_profiler(TRUE);
     }
     public function index()
     { $userid = $this->session->userdata('id');     
@@ -20,14 +20,14 @@ class Album extends CI_Controller
     public function getalbums(int $user_id)
     {
         
-        $this->load->model('albummodel');
-        $data['album_details'] = $this->albummodel->fetchalbum($user_id);
+        // $this->load->model('albummodel');
+        // $data['album_details'] = $this->albummodel->fetchalbum($user_id);
         $data['maincontent'] = 'profile';
         $this->load->view('includes/template',$data);
 
     }
     public function createalbum()
-    {   print_r($_SESSION);
+    {  
         $userid = $_SESSION['id'];
         $name = $this->input->post('name');
         $description = $this->input->post('description');
@@ -42,18 +42,24 @@ class Album extends CI_Controller
                 'created_at'=>$time,
                 'updated_at'=>$time,
             ]);
-            if($status)
-            {
-             redirect('/album');
-            }
+            echo $status;
         }
-        
-
     }
-    public function update(int $album_id)
+    public function fetchalbums()
     {
-       $name = $this->input->post('name');
-       $description = $this->input->post('description');
+        $user_id = $this->session->userdata('id');
+        $this->load->model('albummodel');
+        $data['album_details'] = $this->albummodel->fetchalbum($user_id);
+        echo json_encode($data);
+    
+    }
+    
+
+    public function update()
+    {   
+        $album_id = $this->input->post('id');
+        $name = $this->input->post('name');
+        $description = $this->input->post('description');
        $time = date("Y:m:d H:i:s");
        if($name!=null & $description!=null)
        {    
@@ -63,11 +69,9 @@ class Album extends CI_Controller
                 'description'=>$description,
                 'updated_at'=>$time,
             ]);
-            if($status)
-            {
-              $this->index();
-            }
+           echo $status;
        }
     }
+   
 }
 ?>

@@ -85,32 +85,7 @@ if(isset($album)&&!empty($album))
 <div class="col-md-6 col-md-offset-3">
         <div class="col-xs-12 col-sm-10">
                     <div class="row">
-                        <?php
-                        if(isset($images)&&!empty($images))
-                        {
-                            foreach($images as $image)
-                            {   
-                        ?>       <div id="images-wrapper">
-                                            <div class="thumbnail">
-                                                <form action="<?php echo base_url('index.php/image/softdelete/'.$image['id'])?>" method="post">
-                                                <a href="" data-fancybox data-caption="&lt;b&gt;Single photo&lt;/b&gt;&lt;br /&gt;Caption can contain &lt;em&gt;any&lt;/em&gt; HTML elements">
-                                                    <img src="<?php echo base_url('images/thumbnail/'.$image['image_name'])?>"class="img-responsive" alt="card-img-top"style="width:100%;">
-                                                </a>
-                                                        <div class="caption">   
-                                                            <h4><?=$image['caption']?></h4>
-                                                            <p>Caption...</p>
-                                                            <input type="hidden" name="hidden-field" value="">
-                                                            <button type="submit" class="btn btn-info" name="delete-image">Delete</button>        
-                                                        </div>
-                                                </form>
-                                      
-                                    </div>
-                                </div>    
-                    <?php
-                                
-                            }
-                        }    
-                    ?>
+                       
 </div>
 </div>
 </div>
@@ -125,7 +100,7 @@ if(isset($album)&&!empty($album))
                 <?php
                echo $this->session->flashdata('error'); 
                 ?>
-            <form  class="form-inline" action="<?php echo base_url('index.php/image/do_upload/'.$value['id']) ?>" enctype="multipart/form-data" method="post">
+            <form  class="form-inline"  enctype="multipart/form-data" method="post" id="ImageUploadForm">
                 <div class="form-group">
                     <label class="btn btn-default btn-file">
                             upload Image <input type="file" style="display: none;"  name="album-image" id="album-image"> 
@@ -164,14 +139,14 @@ if(isset($album)&&!empty($album))
                 <h4 class="modal-title">Modal title</h4>
             </div>
             <div class="modal-body">
-            <form action="<?php echo base_url('index.php/album/update/'.$value['id'])?>" method="post">
+            <form id="albumupdateform" method="post">
             <div class="form-group">
                 <label for="name">Album Name</label>
-                <input id="name" class="form-control" type="text" name="name" value="<?=$value['name']?>">
+                <input id="name" class="form-control" type="text" name="name">
             </div>
             <div class="form-group">
                 <label for="description">Text</label>
-                <input id="description" name="description"class="form-control" type="text" value="<?=$value['description']?>">
+                <input id="description" name="description"class="form-control" type="text" >
             </div>
             <div class="form-group">
             <input type="submit" value="Save" name="update-album">
@@ -189,3 +164,96 @@ if(isset($album)&&!empty($album))
 }
 }
 ?>
+<script>
+$(document).ready(function()
+{   
+    var album_id = "<?php echo $album[0]['id']?>";
+    
+    $('#ImageUploadForm').submit(function(){
+        var formdata  = new FormData(this);
+        formdata.append('album_id', album_id);
+        $.ajax({
+            type:'POST',
+            url:"<?php echo base_url('index.php/image/do_upload') ?>",
+            data:formdata,
+            cache:false,
+            contentType:false,
+            processData:false,
+            success:function(data){
+               console.log(data);
+               $('#ImageUpload').hide();
+               ImageList(); 
+
+            },
+            error:function(data){
+               console.log(data);
+            }
+        });
+
+        return false;    
+    });
+   
+    $("#albumupdateform").submit(function()
+    { 
+    var name = $("#name").val();
+    var description = $("#description").val();
+     $.post
+    (
+        "<?php echo base_url('index.php/album/update')?>",
+      {
+        status:1,
+        "name":name,
+        "description":description,
+        "id":album_id
+
+      },
+      function(response)
+      {
+        if(response)
+        { 
+            $("#AlbumUpdate").hide();
+        
+        }
+      }
+     
+    );
+
+    return false;  
+    });
+
+
+});
+function ImageList()
+{   var base_url = "<?php echo base_url(); ?>";
+    var album_id = "<?php echo $album[0]['id']?>";
+        $.ajax({
+            type:'POST',
+            url:"<?php echo base_url('index.php/image/fetchimages')?>",
+            data:{
+             albumid:album_id   
+            },
+            success:function(response)
+            {
+                console.log(response);
+                var jsonobj = JSON.parse(response);
+                var html = "";
+                for(var i =0;i<jsonobj.images.length;i++)
+                {   var image_id = jsonobj.images[i]['id'];
+                    html+= '<div id="images-wrapper">';
+                    html+= ' <div class="thumbnail">';
+                    html+= '  <form action="'+base_url+'index.php/image/softdelete/'+image_id+'" method="post">';
+                    
+                }
+               
+
+
+            },
+            error:function(response)
+            {
+                console.log(response);
+            }
+
+        });
+}
+
+</script>
