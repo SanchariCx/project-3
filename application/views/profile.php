@@ -114,7 +114,7 @@ $(document).ready(function()
     }
     $.ajax
     ({
-      url: "<?php echo base_url('index.php/album/update')?>",
+      url: "<?php echo base_url('index.php/album/createalbum')?>",
       type:"post",
       data :
       {

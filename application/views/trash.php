@@ -39,13 +39,12 @@ margin-bottom: 0px;
                                         <div class="thumbnail">
                                             <form action="<?php echo base_url('index.php/image/trashdelete/'.$image['id'])?>" method="post">
                                                     <a href="" data-fancybox data-caption="&lt;b&gt;Single photo&lt;/b&gt;&lt;br /&gt;Caption can contain &lt;em&gt;any&lt;/em&gt; HTML elements">
-                                                        <img src="<?php echo base_url('images/thumbnail/'.$image['image_name'].'_thumb.'.$image['ext'])?>"class="img-responsive" alt="card-img-top"style="width:100%;">
+                                                        <img src="<?php echo base_url('images/thumbnail/'.$image['image_name'])?>"class="img-responsive" alt="card-img-top"style="width:100%;">
                                                     </a>
                                                     <div class="caption">   
                                                         <h4><?=$image['caption']?></h4>
                                                         <p>Caption...</p>
                                                         <input type="hidden" name="imagename" value="<?=$image['image_name']?>">
-                                                        <input type="hidden" name="extension" value="<?=$image['ext']?>">
                                                         <button type="submit" class="btn btn-info" name="delete-image">Permanent Delete</button>        
                                                     </div>
                                             </form>

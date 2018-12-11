@@ -9,6 +9,11 @@ class Image extends CI_Controller
     {
        
     }
+    public function getgallery()
+    {
+        $data['maincontent'] = 'gallery';
+        $this->load->view('includes/template',$data);
+    }
     public function getimages($id)
     {  
         $this->load->model('imagemodel');
@@ -22,12 +27,19 @@ class Image extends CI_Controller
     {   $id = $this->input->post('albumid');
         $this->load->model('imagemodel');
         $data['images'] = $this->imagemodel->fetchimage($id);
-        echo json_encode($data);
-
-       
+        echo json_encode($data); 
     }
+    public function fetchPublicImages()
+    {
+        $this->load->model('imagemodel');
+        $data['images'] = $this->imagemodel->GuestGallery();
+        echo json_encode($data);
+    }
+
     public function do_upload()
-    {   $album_id = $this->input->post('album_id');
+    {   
+        
+        $album_id = $this->input->post('album_id');
         $config['upload_path'] = './images/';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
         $files_ext =  explode("/",$_FILES['album-image']['type']);
@@ -93,8 +105,13 @@ class Image extends CI_Controller
 
     return $status;    
     }
-    public function softdelete(int $id)
-    {
+    public function softdelete()
+    {   
+        if(empty($this->session->userdata['id']))
+        {
+            $this->getgallery();
+        }
+        $id = $this->input->post('id'); 
        if(!empty($id))
        {   $this->load->model('imagemodel');
            $album_id = $this->imagemodel->fetchid($id);

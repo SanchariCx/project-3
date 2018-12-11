@@ -60,6 +60,16 @@ class Imagemodel extends CI_Model
         $result = $q->result_array();    
     return $result;
     }
+    public function GuestGallery()
+    {
+        $q = $this->db->where([
+            'view_status'=>1,
+            'deleted_at'=>NULL,
+        ])
+                ->get('images');
+                $result = $q->result_array();
+    return $result;            
+    }
 
 }
 ?>

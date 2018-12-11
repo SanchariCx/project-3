@@ -1,59 +1,47 @@
-<?php
-if(empty($this->session->userdata('id')))
-{
-    redirect('/user/login');
-}
-?>
 <style>
-
+body
+{
+    overflow:auto;
+    padding: 0px;
+}
 .btn-round-lg{
 border-radius: 22.5px;
 }
-.btn-round{
-border-radius: 17px;
-}
-.btn-round-sm{
-border-radius: 15px;
-}
-.btn-round-xs{
-border-radius: 11px;
-padding-left: 10px;
-padding-right: 10px;
-}
 .navbar {
-
     margin-bottom: 0px;
 }
-
-#images-wrapper img {    
-   width: 100% ;    
-   height: auto !important;  
-}  
-#images-wrapper{    
+.images-wrapper{    
    display:inline-block;    
    margin-right: auto;    
    margin-left: auto;  
 }
+.images-wrapper img {    
+   width: 100% ;    
+   height: auto !important;  
+}  
+
 
 </style>
-<?php
-if(isset($album)&&!empty($album))
-{
-    foreach($album as $value)
-    {
 
-    
-?>
 <nav class="navbar navbar-inverse">
   <div class="container-fluid">
     <div class="navbar-header">
       <a class="navbar-brand" href="#">Image Gallery</a>
     </div>
     <ul class="nav navbar-nav">
-      <li class="active"><a href="#">Album</a></li>
+    <?php
+    if(isset($album)&&!empty($album))
+    {
+        foreach($album as $value)
+        {
+    ?>
+      <li class="active"><a href="<?php echo base_url('index.php/album')?>">Album</a></li>
       <li><a href="<?php echo base_url('index.php/user/logout')?>">Logout</a></li>
       <li><a href="<?php echo base_url('index.php/image/trash/'.$value['id'])?>">Trash</a></li>
-    
+    <?php
+        }
+    }    
+    ?>
       <li><a href="#">Page 3</a></li>
     </ul>
   </div>
@@ -61,9 +49,17 @@ if(isset($album)&&!empty($album))
   <section class="jumbotron text-center">
         <div class="container">
           <h1 class="jumbotron-heading">Gallery</h1>
-          <button type="button" class="btn btn-default btn-round-lg btn-lg" data-toggle="modal" data-target="#ImageUpload">Image Upload</button>
+          <?php
+          if(!empty($this->session->userdata['id']))
+          {
+            ?>   
+            <button type="button" class="btn btn-default btn-round-lg btn-lg" data-toggle="modal" data-target="#ImageUpload">Image Upload</button>
           <button type="button" class="btn btn-default btn-round-lg btn-lg" data-toggle="modal" data-target="#AlbumUpdate">Album Update</button>
-          </p>
+          <?php
+          } 
+          ?>
+          
+          </div>
         </div>
       </section>
      
@@ -82,12 +78,13 @@ if(isset($album)&&!empty($album))
       }
 
       ?>
-<div class="col-md-6 col-md-offset-3">
+<div class="col-md-10 col-md-offset-1">
         <div class="col-xs-12 col-sm-10">
                     <div class="row">
-                       
-</div>
-</div>
+                       <div id="image-list">
+                       </div>
+                   </div>
+        </div>
 </div>
 <div class="modal fade" id="ImageUpload">
     <div class="modal-dialog">
@@ -160,72 +157,16 @@ if(isset($album)&&!empty($album))
         </div>
     </div>
 </div>
-<?php
-}
-}
-?>
+
 <script>
-$(document).ready(function()
-{   
+ <?php if(!empty($album)) : ?>
     var album_id = "<?php echo $album[0]['id']?>";
-    
-    $('#ImageUploadForm').submit(function(){
-        var formdata  = new FormData(this);
-        formdata.append('album_id', album_id);
-        $.ajax({
-            type:'POST',
-            url:"<?php echo base_url('index.php/image/do_upload') ?>",
-            data:formdata,
-            cache:false,
-            contentType:false,
-            processData:false,
-            success:function(data){
-               console.log(data);
-               $('#ImageUpload').hide();
-               ImageList(); 
+    ImageList();
+    function ImageList()
+    {
 
-            },
-            error:function(data){
-               console.log(data);
-            }
-        });
-
-        return false;    
-    });
-   
-    $("#albumupdateform").submit(function()
-    { 
-    var name = $("#name").val();
-    var description = $("#description").val();
-     $.post
-    (
-        "<?php echo base_url('index.php/album/update')?>",
-      {
-        status:1,
-        "name":name,
-        "description":description,
-        "id":album_id
-
-      },
-      function(response)
-      {
-        if(response)
-        { 
-            $("#AlbumUpdate").hide();
-        
-        }
-      }
-     
-    );
-
-    return false;  
-    });
-
-
-});
-function ImageList()
-{   var base_url = "<?php echo base_url(); ?>";
-    var album_id = "<?php echo $album[0]['id']?>";
+        var base_url = "<?php echo base_url(); ?>";
+        var image_path = "<?php echo FCPATH?>";
         $.ajax({
             type:'POST',
             url:"<?php echo base_url('index.php/image/fetchimages')?>",
@@ -236,44 +177,184 @@ function ImageList()
             {
                 console.log(response);
                 var jsonobj = JSON.parse(response);
+
                 var html = "";
                 for(var i =0;i<jsonobj.images.length;i++)
-                {   var image_id = jsonobj.images[i]['id'];
-                    html+= '<div id="images-wrapper">';
+                {   
+                    var image = jsonobj.images[i];
+                    html+= '<div class="images-wrapper" id="'+image.id+'-div">';
                     html+= ' <div class="thumbnail">';
-                    html+= '  <form action="'+base_url+'index.php/image/softdelete/'+image_id+'" method="post">';
                     html+= '  <a href="" data-fancybox data-caption="&lt;b&gt;Single photo&lt;/b&gt;&lt;br /&gt;Caption can contain &lt;em&gt;any&lt;/em&gt; HTML elements">';
-                    html+= '    <img src="<?php echo base_url('images/thumbnail/'.$image['image_name'])?>"class="img-responsive" alt="card-img-top"style="width:100%;">';
+                    html+= '    <img src="/project-3/'+'images/thumbnail/'+image.image_name+'" class="img-responsive" alt="card-img-top"style="width:100%;">';
                     html+= '     </a>';
                     html+= '     <div class="caption">';
-                    html+= '      <h4><?=$image['caption']?></h4>';
-                    html+= '      <p>Caption...</p>';
-                    html+= '       <button type="submit" class="btn btn-info" name="delete-image">Delete</button>';
+                    html+= '      <p>'+image.caption+'</p>';
+                    html+= '       <button type="submit" class="btn btn-info" name="delete-image" onclick ="deleteimage('+image.id+')">Delete</button>';
                     html+= '       </div>\
-                                    </form>\
                                       </div>\
                                       </div>';
-                    html+= '<';
-                    html+= '?';
-                    html+= 'php';
-                    html+='?';
-                    html+='>';
-
-                                    
-
-
-                    
+                   
+                    $('#image-list').html(html);
+                                   
                 }
                
 
-
             },
             error:function(response)
-            {
+            { 
                 console.log(response);
             }
 
         });
+    }
+<?php else: ?>
+    publicImageList();
+    function publicImageList()
+{   
+    var base_url = "<?php echo base_url(); ?>";
+    var image_path = "<?php echo FCPATH?>";
+        $.ajax({
+            type:'POST',
+            url:"<?php echo base_url('index.php/image/fetchPublicImages')?>",
+            success:function(response)
+            {
+                console.log(response);
+                var jsonobj = JSON.parse(response);
+
+                var html = "";
+                for(var i =0;i<jsonobj.images.length;i++)
+                {   
+
+                    var image = jsonobj.images[i];
+                    html+= '<div class="images-wrapper" id="'+image.id+'-div">';
+                    html+= ' <div class="thumbnail">';
+                    html+= '  <a href="" data-fancybox data-caption="&lt;b&gt;Single photo&lt;/b&gt;&lt;br /&gt;Caption can contain &lt;em&gt;any&lt;/em&gt; HTML elements">';
+                    html+= '    <img src="/project-3/'+'images/thumbnail/'+image.image_name+'" class="img-responsive" alt="card-img-top"style="width:100%;">';
+                    html+= '     </a>';
+                    html+= '     <div class="caption">';
+                    html+= '      <p>'+image.caption+'</p>';
+                    html+= '       </div>\
+                                      </div>\
+                                      </div>';
+                   
+                    $('#image-list').html(html);
+                                   
+                }
+               
+
+            },
+            error:function(response)
+            { 
+                console.log(response);
+            }
+
+        });
+}
+    <?php endif; ?>
+window.onload = $(document).ready(function()
+{   
+    <?php if(empty($user_id)):?>
+    publicImageList();     
+<?php endif;?>
+    //image upload
+    $('#ImageUploadForm').submit(function(){
+        
+        var uploadform = $('#ImageUpload');
+        var btn =  uploadform.find("input[type='submit']");
+        btn.val('uploading...');
+        var formdata  = new FormData(this);
+        formdata.append('album_id', album_id);
+        $.ajax({
+            type:'POST',
+            url:"<?php echo base_url('index.php/image/do_upload') ?>",
+            data:formdata,
+            cache:false,
+            contentType:false,
+            processData:false,
+            success:function(data){
+                if(data)
+                {   btn.val('save');
+                    ImageList();
+                    $('#ImageUpload').hide();
+                    
+                }
+               console.log(data);
+
+            
+
+            },
+            error:function(data){
+               console.log(data);
+            }
+        });
+
+        return false;    
+    });
+    
+   
+    //albumupdate    
+    $("#albumupdateform").submit(function()
+    { 
+        var name = $("#name").val();
+        var description = $("#description").val();
+        $.post
+        (
+            "<?php echo base_url('index.php/album/update')?>",
+        {
+            status:1,
+            "name":name,
+            "description":description,
+            "id":album_id
+
+        },
+        function(response)
+        {
+            if(response)
+            { 
+                $("#AlbumUpdate").hide();
+            
+            }
+        }
+        
+        );
+
+    return false;  
+    });
+    
+
+});
+
+
+
+
+function deleteimage(imageid)
+{   
+    var imagediv = $('#'+imageid+"-div");
+    var btn =  imagediv.find("button[type='submit']");
+    btn.attr('disabled',true);
+    setTimeout(function(){
+        $.post
+        (
+            "<?php echo base_url('index.php/image/softdelete')?>",
+        {
+            status:1,
+            "id": imageid
+
+        },
+        function(response)
+        {   
+            btn.attr('disabled',false); 
+          if(response)
+          {
+            imagediv.remove();
+          }
+        }
+        
+        );
+
+    },1);
+    
+   
 }
 
 </script>

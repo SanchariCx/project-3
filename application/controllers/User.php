@@ -30,8 +30,11 @@ class User extends CI_Controller
    
     public function logout()
     {
-        $this->session->sess_destroy();
-        redirect('user/login','refresh');
+        if(session_destroy())
+        {
+        $this->session->unset_userdata('id');
+        redirect('image/getgallery');
+        }
     }
        
 }
